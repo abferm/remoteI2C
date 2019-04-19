@@ -7,6 +7,12 @@ import (
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
+func DialDefaults(addr string) (bus *RemoteBus, err error) {
+	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
+	transportFactory := thrift.NewTTransportFactory()
+	return Dial(transportFactory, protocolFactory, addr, false)
+}
+
 func Dial(transportFactory thrift.TTransportFactory, protocolFactory thrift.TProtocolFactory, addr string, secure bool) (bus *RemoteBus, err error) {
 	var transport thrift.TTransport
 	if secure {

@@ -16,7 +16,6 @@ type I2CHandler struct {
 }
 
 func NewI2CHandler(bus i2c.Bus) *I2CHandler {
-	logger.SetLogLevel(loggo.TRACE)
 	return &I2CHandler{bus: bus}
 }
 

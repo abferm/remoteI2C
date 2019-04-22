@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/juju/loggo"
+
 	"periph.io/x/periph/conn/i2c/i2creg"
 
 	"github.com/abferm/remoteI2C/server"
@@ -31,6 +33,8 @@ import (
 	"github.com/apache/thrift/lib/go/thrift"
 	"periph.io/x/periph/host"
 )
+
+const defaultLogLevel = loggo.WARNING
 
 func Usage() {
 	fmt.Fprint(os.Stderr, "Usage of ", os.Args[0], ":\n")
@@ -46,8 +50,17 @@ func main() {
 	buffered := flag.Bool("buffered", false, "Use buffered transport")
 	addr := flag.String("addr", "localhost:9090", "Address to listen to")
 	secure := flag.Bool("secure", false, "Use tls secure transport")
+	logLevel := flag.String("log-level", defaultLogLevel.String(), "Logging verbosity level, one of: CRITICAL, ERROR, WARN(ING), INFO, DEBUG, TRACE")
 
 	flag.Parse()
+
+	logger := loggo.GetLogger("")
+	loggoLevel, ok := loggo.ParseLevel(*logLevel)
+	if !ok {
+		logger.Warningf("Invalid log level %q, using default %q", *logLevel, defaultLogLevel.String())
+		loggoLevel = defaultLogLevel
+	}
+	logger.SetLogLevel(loggoLevel)
 
 	var protocolFactory thrift.TProtocolFactory
 	switch *protocol {
@@ -60,7 +73,7 @@ func main() {
 	case "binary", "":
 		protocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
 	default:
-		fmt.Fprint(os.Stderr, "Invalid protocol specified", protocol, "\n")
+		logger.Criticalf("Invalid protocol specified %q", *protocol)
 		Usage()
 		os.Exit(1)
 	}
@@ -90,6 +103,6 @@ func main() {
 
 	// always run server here
 	if err := server.RunServer(bus, transportFactory, protocolFactory, *addr, *secure); err != nil {
-		fmt.Println("error running server:", err)
+		logger.Criticalf("error running server: %s", err.Error())
 	}
 }

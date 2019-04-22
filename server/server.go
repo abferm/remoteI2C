@@ -21,7 +21,6 @@ package server
 
 import (
 	"crypto/tls"
-	"fmt"
 
 	"github.com/abferm/remoteI2C/gen-go/rpc"
 	"periph.io/x/periph/conn/i2c"
@@ -47,11 +46,11 @@ func RunServer(bus i2c.Bus, transportFactory thrift.TTransportFactory, protocolF
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%T\n", transport)
+	logger.Debugf("%T\n", transport)
 	handler := NewI2CHandler(bus)
 	processor := rpc.NewI2CProcessor(handler)
 	server := thrift.NewTSimpleServer4(processor, transport, transportFactory, protocolFactory)
 
-	fmt.Println("Starting the simple server... on ", addr)
+	logger.Infof("Starting the simple server... on %s", addr)
 	return server.Serve()
 }

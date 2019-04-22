@@ -21,7 +21,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/juju/loggo"
@@ -36,14 +35,7 @@ import (
 
 const defaultLogLevel = loggo.WARNING
 
-func Usage() {
-	fmt.Fprint(os.Stderr, "Usage of ", os.Args[0], ":\n")
-	flag.PrintDefaults()
-	fmt.Fprint(os.Stderr, "\n")
-}
-
 func main() {
-	flag.Usage = Usage
 	busName := flag.String("b", "", "I²C bus to use")
 	protocol := flag.String("P", "binary", "Specify the protocol (binary, compact, json, simplejson)")
 	framed := flag.Bool("framed", false, "Use framed transport")
@@ -74,7 +66,7 @@ func main() {
 		protocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
 	default:
 		logger.Criticalf("Invalid protocol specified %q", *protocol)
-		Usage()
+		flag.Usage()
 		os.Exit(1)
 	}
 

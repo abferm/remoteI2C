@@ -22,12 +22,6 @@ import (
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
-func Usage() {
-	fmt.Fprint(os.Stderr, "Usage of ", os.Args[0], ":\n")
-	flag.PrintDefaults()
-	fmt.Fprint(os.Stderr, "\n")
-}
-
 func getRemoteBus(protocol *string, framed, buffered *bool, addr *string, secure *bool) (*client.RemoteBus, error) {
 	var protocolFactory thrift.TProtocolFactory
 	switch *protocol {
@@ -41,7 +35,7 @@ func getRemoteBus(protocol *string, framed, buffered *bool, addr *string, secure
 		protocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
 	default:
 		fmt.Fprint(os.Stderr, "Invalid protocol specified", protocol, "\n")
-		Usage()
+		flag.Usage()
 		os.Exit(1)
 	}
 
@@ -63,7 +57,6 @@ func getRemoteBus(protocol *string, framed, buffered *bool, addr *string, secure
 }
 
 func mainImpl() error {
-	flag.Usage = Usage
 	addr := flag.Int("a", -1, "I²C device address to query")
 	protocol := flag.String("P", "binary", "Specify the protocol (binary, compact, json, simplejson)")
 	framed := flag.Bool("framed", false, "Use framed transport")
